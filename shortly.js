@@ -42,6 +42,7 @@ function(req, res) {
 
 app.post('/links', 
 function(req, res) {
+  
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
@@ -50,6 +51,8 @@ function(req, res) {
   }
 
   new Link({ url: uri }).fetch().then(function(found) {
+
+
     if (found) {
       res.send(200, found.attributes);
     } else {
@@ -67,6 +70,7 @@ function(req, res) {
 
         link.save().then(function(newLink) {
           Links.add(newLink);
+          console.log("these are the LINKS:", Links.models['0'].attributes)
           res.send(200, newLink);
         });
       });
