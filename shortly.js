@@ -2,6 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 
 var db = require('./app/config');
@@ -22,26 +23,41 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+app.use(session({
+  secret: 'test'
+}));
 
-app.get('/', 
-function(req, res) {
+var sessionChecker = function(req, res, next){
+  console.log('res.session logged ', res.session);
+  if(req.session.user){
+    next();
+  } else {
+    res.redirect('/login');
+  }
+}
+
+
+app.get('/', sessionChecker, function(req, res) {
+  
   res.render('index');
 });
 
-app.get('/create', 
-function(req, res) {
+app.get('/create', sessionChecker, function(req, res) {
   res.render('index');
 });
 
-app.get('/links', 
-function(req, res) {
+app.get('/links', function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
 });
 
-app.post('/links', 
-function(req, res) {
+app.get('/login', function(req, res) {
+  res.render('login')
+});
+
+
+app.post('/links', function(req, res) {
   
   var uri = req.body.url;
 
@@ -82,6 +98,30 @@ function(req, res) {
 // Write your dedicated authentication routes here
 // e.g. login, logout, etc.
 /************************************************************/
+
+//check to see if user is logged in
+//if not redirect to /login
+
+// function restrict(req, res, next) {
+//   console.log()
+
+
+//   if (req.session.user) {
+//     next();
+//   } else {
+//     req.session.error = 'Access denied!';
+//     res.redirect('/login');
+//   }
+// }
+ 
+// app.get('/', function(request, response) {
+//    response.send('This is the homepage');
+// });
+ 
+// app.get('/login', function(request, response) {
+//    response.send(__dirname + '/views/login');
+// });
+ 
 
 
 
